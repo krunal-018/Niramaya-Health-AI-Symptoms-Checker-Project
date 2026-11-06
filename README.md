@@ -1,62 +1,61 @@
 # Niramaya Health AI
 
-An educational symptom-checker prototype by **Krunal Kaklotar**. It explores two approaches to the same interface: classifying symptom tokens with logistic regression and generating text with pretrained language models.
+**A conversational health information and biomedical research workspace** by Krunal Kaklotar.
 
-> Use synthetic inputs only. The project is intended for software demonstrations, not medical decisions or handling patient data.
+### [Open the live app ↗](https://niramaya-health-ai-bbzc.onrender.com/)
 
-[Browse the frontend](frontend/) · [Read the Flask inference routes](backend/routes/ask_AI_API.py) · [Inspect the example predictions](backend/model_LR/prediction_comparison_results.csv)
+Ask a health question in plain language, explore published research, or prepare notes for a healthcare conversation. Niramaya is an educational project and has not undergone clinical validation.
 
-## How it works
+## Features
 
-| Path | Implementation |
+| Feature | What you can do |
 | --- | --- |
-| Logistic regression | Flask maps recognized symptom tokens to a binary feature vector and loads a serialized classifier with Joblib. Both routes use the same classifier. LRv2 adds a precaution lookup when available. |
-| BioGPT | The Flask backend loads Microsoft's pretrained BioGPT through Hugging Face Transformers and generates text locally. |
-| Gemini | Flask sends the submitted question to Google's Gemini API and returns the generated text. |
-| Web interface | Static HTML, CSS, and JavaScript call the Flask routes. Account, family profile, and chat history routes use PostgreSQL. |
+| **Direct Chat** | Ask a question without entering a research topic. The assistant can ask follow-up questions about details such as symptom duration and measured temperature, then use your recent replies to tailor general information. |
+| **Research-backed Chat** | Enter a question and literature search terms. The app retrieves biomedical abstracts and shows the papers alongside the generated answer so you can inspect the evidence. |
+| **Research Explorer** | Search PubMed-indexed literature through Europe PMC, read abstracts, and open the original PubMed records. |
+| **Visit Prep** | Add questions and source links from the workspace, edit your notes, and download them as a text file. |
+| **Answer language** | Choose English or German for AI answers. The interface is in English. |
 
-## What the evaluation shows
+**Try it:** In Direct Chat, use the fictional example “I have a fever. What information should I tell a clinician?” In Research Explorer, try `exercise AND sleep quality`.
 
-The checked-in [comparison CSV](backend/model_LR/prediction_comparison_results.csv) labels **24 of 41 rows correct** (58.5%). This is a count of recorded example outcomes. The repository does not provide a reproducible training pipeline, documented train/test split, or a clinical validation study. The comparison does not evaluate BioGPT or Gemini.
+## Technology stack
 
-## Preview the interface
+| Layer | Technologies |
+| --- | --- |
+| Frontend | HTML, CSS, and vanilla JavaScript |
+| Backend | Python and Flask |
+| AI | Google Gemini API. Default model: `gemini-3.5-flash-lite` |
+| Research | Europe PMC REST API and PubMed record links |
+| Hosting | Render web service with Gunicorn and a [deployment Blueprint](render.yaml) |
 
-From the repository root, serve the static pages with Python:
+Flask serves the website and API from the same origin. Direct Chat calls Gemini, while Research-backed Chat retrieves abstracts from Europe PMC first. Visit notes are edited and exported in the browser. The deployed app does not use a database.
 
-```bash
-python -m http.server 8000 --bind 127.0.0.1 --directory frontend
+## Run locally
+
+From the repository root, run these commands in Windows PowerShell with Python 3.11:
+
+```powershell
+cd niramaya
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m flask --app app run --host 127.0.0.1 --port 5000
 ```
 
-Open [the home page](http://127.0.0.1:8000/home.html) or [the model overview](http://127.0.0.1:8000/our_model.html). The pages can be browsed without starting Flask. Interactive features depend on the API at port 5000.
+Open [the local homepage](http://127.0.0.1:5000/). To enable chat, set `GEMINI_API_KEY` in the same PowerShell session before starting Flask. Optionally set `GEMINI_MODEL` to override the default. Research Explorer and Visit Prep work without a Gemini key.
 
-## Run the Flask API locally
+## Deployment
 
-Use Python 3.11 for the pinned dependencies. BioGPT downloads model files on first startup. The classifier is serialized with Joblib and needs scikit-learn. The original scikit-learn version used to serialize it is undocumented, so compatibility may require matching the training environment.
+The live app deploys from `main` on Render using `niramaya/` as the service root and `/healthz` as the health check. Configure `GEMINI_API_KEY` in Render's environment settings. Keep credentials out of Git.
 
-```bash
-cd backend
-python -m venv .venv
-# macOS/Linux: source .venv/bin/activate
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt scikit-learn sacremoses
-python -m flask --app app run --host 127.0.0.1 --port 5000
-```
+## Repository layout
 
-| Endpoint | JSON body |
-| --- | --- |
-| `POST /asklrv1` | `{"symptoms":"skin_rash blackheads"}` |
-| `POST /asklrv2` | `{"symptoms":"skin_rash blackheads"}` |
-| `POST /askbiogpt` | `{"question":"What is a symptom?"}` |
-| `POST /askgemini` | `{"question":"What is a symptom?"}` |
+- [`niramaya/app.py`](niramaya/app.py) — Flask routes, Gemini integration, and literature retrieval.
+- [`niramaya/static/`](niramaya/static/) — Interface, styling, and browser interactions.
+- [`render.yaml`](render.yaml) — Hosting configuration.
+- [`backend/`](backend/) and [`frontend/`](frontend/) — Earlier prototype, including the original BioGPT and logistic regression experiments.
 
-Set `GEMINI_API_KEY` before starting Flask to enable Gemini. Set `GEMINI_MODEL` to a model available to your key if the legacy default is unavailable. Only send synthetic questions to external services.
+## Privacy and scope
 
-The account and chat flows require the PostgreSQL tables expected by the route modules. A database schema or migration is not included. Password-reset email additionally requires `NIRAMAYA_SMTP_USER` and `NIRAMAYA_SMTP_PASSWORD`.
+Chat sends your question and limited recent conversation context to Gemini. Literature search terms go to Europe PMC. Keep names, medical records, and other identifying details out of the app. Visit notes stay in the current page until you download them. Review generated information and its sources before relying on it.
 
-## Next engineering steps
-
-1. Add the training script, dataset provenance, dependency versions, and a repeatable evaluation on held-out examples.
-2. Add a local database schema and environment-based configuration for the account and chat features.
-3. Add route tests for invalid payloads, unknown symptom tokens, and unavailable model services.
-
-[Krunal Kaklotar on LinkedIn](https://www.linkedin.com/in/krunal-kaklotar/)
+[Live homepage](https://niramaya-health-ai-bbzc.onrender.com/) · [Krunal Kaklotar on LinkedIn](https://www.linkedin.com/in/krunal-kaklotar/)
