@@ -30,18 +30,11 @@ def generate_medical_response(prompt, max_length=1000):
     full_response = " ".join([resp["generated_text"] for resp in responses])
     return full_response
 
-# Configure Gemini API
-GEMINI_API_KEY = "AIzaSyCxcCXwbFRdEz6f92mXlVd1dBw7fqCQWew"  # Replace with your actual API key
-genai.configure(api_key=GEMINI_API_KEY)
-
 def generate_gemini_response(prompt):
     """Generates a response using the Gemini API."""
-    try:
-        model = genai.GenerativeModel('gemini-1.5-pro')  # Use the appropriate Gemini model
-        response = model.generate_content(prompt)
-        return response.text  # Returns the generated text
-    except Exception as e:
-        return str(e)
+    model_name = os.environ.get("GEMINI_MODEL", "gemini-1.5-pro")
+    model = genai.GenerativeModel(model_name)
+    return model.generate_content(prompt).text
 
 @AI_bp.route("/askbiogpt", methods=["POST"])
 def ask_biogpt():
@@ -68,10 +61,14 @@ def ask_gemini():
         return jsonify({"error": "The 'question' field is required."}), 400
 
     try:
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            return jsonify({"error": "Gemini is not configured."}), 503
+        genai.configure(api_key=api_key)
         answer = generate_gemini_response(question)
         return jsonify({"question": question, "answer": answer})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        return jsonify({"error": "Gemini could not generate a response."}), 502
     
 # LR
 
