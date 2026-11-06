@@ -75,7 +75,7 @@ def chat():
     if (not isinstance(question, str) or not 2 <= len(question.strip()) <= 1500
             or not isinstance(topic, str) or not 2 <= len(topic.strip()) <= 200
             or not isinstance(history, list) or len(history) > 4
-            or any(not isinstance(turn, dict) or turn.get("role") not in {"user", "assistant"}
+            or any(not isinstance(turn, dict) or turn.get("role") not in ("user", "assistant")
                    or not isinstance(turn.get("text"), str) or len(turn["text"]) > 1800 for turn in history)):
         return jsonify(error="Enter a question and a short literature topic."), 400
     if URGENT.search(question):
