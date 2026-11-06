@@ -269,9 +269,7 @@
                     <ul>
                         <li><strong>Developer:</strong> Microsoft</li>
                         <li><strong>Model Type:</strong> Transformer-based language model</li>
-                        <li><strong>Accuracy:</strong> State-of-the-art in biomedical NLP tasks</li>
-                        <li><strong>Dataset:</strong> Large corpus of PubMed articles</li>
-                        <li><strong>Description:</strong> BioGPT, fine-tuned on biomedical literature, excels at answering health questions with precision and context, leveraging its deep understanding of medical texts.</li>
+                        <li><strong>Description:</strong> The backend uses the pretrained BioGPT model to generate experimental text responses.</li>
                         <li><strong>Learn More:</strong> <a href="https://github.com/microsoft/BioGPT" target="_blank" style="color: gray;">BioGPT Repository</a></li>
                     </ul>
                 </div>
@@ -280,9 +278,7 @@
                     <ul>
                         <li><strong>Developer:</strong> Google (assumed)</li>
                         <li><strong>Model Type:</strong> Advanced multimodal AI model</li>
-                        <li><strong>Accuracy:</strong> High performance across diverse tasks</li>
-                        <li><strong>Dataset:</strong> Proprietary broad dataset</li>
-                        <li><strong>Description:</strong> Gemini enhances Niramaya’s capabilities with its versatile AI framework, supporting complex health queries with robust and reliable responses.</li>
+                        <li><strong>Description:</strong> This route sends the question to Google Gemini and displays the generated response.</li>
                     </ul>
                 </div>
                 <div class="model-section">
@@ -290,14 +286,8 @@
                     <ul>
                         <li><strong>Developer:</strong> Niramaya Team</li>
                         <li><strong>Model Type:</strong> Logistic Regression</li>
-                        <li><strong>Accuracy:</strong> 0.91 (identical to LRv2)</li>
-                        <li><strong>F1 Score:</strong> 0.89 (identical to LRv2)</li>
-                        <li><strong>Recall:</strong> 0.91 (identical to LRv2)</li>
-                        <li><strong>Precision:</strong> 0.89 (identical to LRv2)</li>
-                        <li><strong>Cross-Validation:</strong> 0.89 (identical to LRv2)</li>
-                        <li><strong>Dataset:</strong> Kaggle’s Symptoms to Disease Dataset</li>
                         <li><strong>Outputs:</strong> Predicted disease and description</li>
-                        <li><strong>Description:</strong> LRv1 analyzes your symptoms using a logistic regression model to predict probable diseases, providing early awareness with detailed descriptions.</li>
+                        <li><strong>Description:</strong> LRv1 converts symptom tokens into binary features and returns the classifier label with a description from a CSV file.</li>
                     </ul>
                 </div>
                 <div class="model-section">
@@ -305,15 +295,8 @@
                     <ul>
                         <li><strong>Developer:</strong> Niramaya Team</li>
                         <li><strong>Model Type:</strong> Enhanced Logistic Regression</li>
-                        <li><strong>Accuracy:</strong> 0.91 (identical to LRv1)</li>
-                        <li><strong>F1 Score:</strong> 0.89 (identical to LRv1)</li>
-                        <li><strong>Recall:</strong> 0.91 (identical to LRv1)</li>
-                        <li><strong>Precision:</strong> 0.89 (identical to LRv1)</li>
-                        <li><strong>Cross-Validation:</strong> 0.89 (identical to LRv1)</li>
-                        <li><strong>Dataset:</strong> Kaggle’s Symptoms to Disease Dataset</li>
                         <li><strong>Outputs:</strong> Predicted disease, description, and precautions</li>
-                        <li><strong>Description:</strong> Building on LRv1, LRv2 not only predicts diseases but also offers tailored precautions, empowering you with comprehensive health guidance.</li>
-                        <img src="model_performance_metrics.png" alt="LRv1 and LRv2 Performance Metrics">
+                        <li><strong>Description:</strong> LRv2 uses the same classifier as LRv1 and adds a precaution lookup from a CSV file.</li>
                     </ul>
                 </div>
             </div>
