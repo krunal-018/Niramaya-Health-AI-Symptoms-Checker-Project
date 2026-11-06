@@ -85,7 +85,7 @@ def chat():
                   "If you are experiencing a medical emergency now, call your local emergency services.")
         return jsonify(answer=answer, model="Safety notice", papers=[])
     key = os.getenv("GEMINI_API_KEY")
-    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+    model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
     if not key or not re.fullmatch(r"[\w.-]+", model):
         return jsonify(error="Live chat requires a configured model. Research and Visit Prep are available."), 503
     try:
@@ -124,6 +124,12 @@ def chat():
             return jsonify(error="The model returned no answer. Try a different question."), 502
         return jsonify(answer=answer, model=model, papers=papers)
     except HTTPError as error:
+        provider = "Gemini" if error.url.startswith("https://generativelanguage.googleapis.com/") else "Europe PMC"
+        app.logger.warning("%s returned HTTP %s", provider, error.code)
+        if provider == "Gemini" and error.code in (401, 403):
+            return jsonify(error="Gemini access was denied. Check the API key and project permissions in Render."), 502
+        if provider == "Gemini" and error.code == 404:
+            return jsonify(error="The selected Gemini model is unavailable to this project. Check GEMINI_MODEL in Render."), 502
         if error.code == 429:
             return jsonify(error="The provider quota is busy. Try again later."), 429
         return jsonify(error="An upstream service could not respond."), 502
