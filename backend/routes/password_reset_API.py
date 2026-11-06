@@ -4,6 +4,7 @@ import psycopg2
 import bcrypt
 import random
 import string
+import os
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
@@ -22,8 +23,8 @@ db_config = {
 }
 
 # Gmail SMTP Configuration
-GMAIL_USER = "facrninja@gmail.com"  
-GMAIL_PASS = "esavshriqkcudtig"     
+GMAIL_USER = os.getenv("NIRAMAYA_SMTP_USER")
+GMAIL_PASS = os.getenv("NIRAMAYA_SMTP_PASSWORD")
 
 # Database connection helper
 def connect_db():
@@ -35,6 +36,9 @@ def generate_otp():
 
 # Send OTP email
 def send_otp_email(email, otp):
+    if not GMAIL_USER or not GMAIL_PASS:
+        return False
+
     try:
         msg = MIMEText(f'Your OTP for password reset is: {otp}\nIt is valid only one time.')
         msg['Subject'] = 'Niramaya Password Reset OTP'
@@ -42,7 +46,6 @@ def send_otp_email(email, otp):
         msg['To'] = email
 
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.set_debuglevel(1)  # Enable debug output
             server.login(GMAIL_USER, GMAIL_PASS)
             server.sendmail(GMAIL_USER, email, msg.as_string())
         print(f"OTP email sent to {email}")
