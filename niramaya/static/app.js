@@ -52,6 +52,14 @@ function paperCard(paper, i, container) {
   save('Add source to notes', paper.title + ' — ' + paper.url, card);
 }
 let chatVersion = 0;
+const chatMode = byId('chat-mode');
+chatMode.onchange = () => {
+  const evidence = chatMode.value === 'evidence';
+  byId('topic-field').hidden = !evidence;
+  byId('topic').disabled = !evidence;
+  byId('topic').required = evidence;
+  byId('clear').click();
+};
 byId('ask').onsubmit = async event => {
   event.preventDefault();
   const question = byId('question').value.trim();
@@ -59,10 +67,10 @@ byId('ask').onsubmit = async event => {
   const button = form.querySelector('[type=submit]');
   const version = chatVersion;
   button.disabled = true;
-  byId('chat-status').textContent = 'Searching literature and preparing a response…';
+  byId('chat-status').textContent = chatMode.value === 'direct' ? 'Preparing a response…' : 'Searching literature and preparing a response…';
   try {
     const data = await api('/api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({question, topic: byId('topic').value.trim(), language: byId('language').value, history: history.slice(-4)})});
+      body: JSON.stringify({question, mode: chatMode.value, topic: byId('topic').value.trim(), language: byId('language').value, history: history.slice(-4)})});
     if (version !== chatVersion) return;
     const message = element('article', '', byId('messages'));
     message.className = 'message';
